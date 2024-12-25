@@ -107,8 +107,44 @@
             line-height: 1.6;
         }
 
+        /* New Styles for Subscription Form */
+        .subscription {
+            margin-bottom: 1.5rem;
+        }
+
+        .subscription form {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .subscription input[type="email"] {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 20px;
+            max-width: 300px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .subscription button {
+            padding: 0.5rem 1.5rem;
+            border: none;
+            border-radius: 20px;
+            background-color: #4a9eff;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .subscription button:hover {
+            background-color: #357ae8;
+        }
+
         .social-links {
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -133,11 +169,31 @@
             transform: translateY(-2px);
         }
 
+        .addresses {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-bottom: 1rem;
+        }
+
         .address {
             font-style: normal;
             font-size: 0.9rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            flex: 1;
+            max-width: 300px;
         }
 
+        .address h3 {
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+            color: #4a9eff;
+            font-size: 1rem;
+        }
+
+        /* Responsive Styles */
         @keyframes fall {
             to {
                 transform: translate3d(-30em, 0, 0);
@@ -175,17 +231,30 @@
             .logo img {
                 width: 200px;
             }
+
+            .addresses {
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+            }
+
+            .address {
+                width: 100%;
+            }
+
+            /* Responsive Subscription Form */
+            .subscription form {
+                flex-direction: column;
+            }
+
+            .subscription button {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
 <div class="stars">
-    <div class="star"></div>
-    <div class="star"></div>
-    <div class="star"></div>
-    <div class="star"></div>
-    <div class="star"></div>
-    <div class="star"></div>
     <div class="star"></div>
     <div class="star"></div>
     <div class="star"></div>
@@ -209,23 +278,100 @@
         <div class="description">
             Our Website is under reconstruction. We'll be back soon!
         </div>
+
+        <!-- Subscription Form -->
+        <div class="subscription">
+            <form id="subscription-form">
+                <input type="email" id="email" name="email" placeholder="Enter your email to subscribe" required>
+                <button type="submit">Subscribe</button>
+            </form>
+            <div id="form-message" style="margin-top: 10px; color: white;"></div>
+        </div>
+
         <div class="social-links">
-            <a href="https://instagram.com/yourcompany">
+            <a href="https://www.instagram.com/profitprop_uz/#">
                 <i data-lucide="instagram"></i>
                 Instagram
             </a>
+            <!-- You can add more social links here -->
         </div>
-        <address class="address">
-            123 Innovation Street<br>
-            Tech City, TC 12345<br>
-            Email: contact@yourcompany.com
-        </address>
+        <div class="addresses">
+            <address class="address">
+                <h3>Uzbekistan Office</h3>
+                Mirzo Ulugbek dstr,<br>
+                Said Baraka 4,<br>
+                Tashkent, Uzbekistan<br>
+                Email: profitprop.co@gmail.com
+            </address>
+            <address class="address">
+                <h3>UK Office</h3>
+                Baskervile House,<br>
+                2 Centenary Sq,<br>
+                Birmingham B1 2ND,<br>
+                United Kingdom<br>
+                Email: profitprop.co@gmail.com
+            </address>
+        </div>
     </div>
 </footer>
 
 <script>
     // Initialize Lucide icons
-    lucide.createIcons();
+    // lucide.createIcons();
+
+    // Subscription Form Handling
+    document.getElementById('subscription-form').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the form from submitting the traditional way
+
+        const emailInput = document.getElementById('email');
+        const email = emailInput.value.trim();
+        const messageDiv = document.getElementById('form-message');
+
+        if (email === "") {
+            messageDiv.textContent = "Please enter a valid email address.";
+            messageDiv.style.color = 'red';
+            return;
+        }
+
+        // Telegram Bot Credentials
+        const BOT_TOKEN = '1675923495:AAGGI-5vt09M0UddIfjhnhT_YeD9wLgPamM';
+        const CHAT_ID = '-4674737427';
+
+        const telegramApiUrl = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+
+        const message = `New Subscription: ${email}`;
+
+        // Prepare the payload
+        const payload = {
+            chat_id: CHAT_ID,
+            text: message
+        };
+        console.log('Payload:');
+        console.log(payload);
+        // Send the email to Telegram
+        fetch(telegramApiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok) {
+                    messageDiv.style.color = 'lightgreen';
+                    messageDiv.textContent = "Subscription successful! Thank you.";
+                    emailInput.value = ""; // Clear the input field
+                } else {
+                    throw new Error(data.description);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                messageDiv.style.color = 'red';
+                messageDiv.textContent = "There was an error subscribing. Please try again later.";
+            });
+    });
 </script>
 </body>
 </html>
